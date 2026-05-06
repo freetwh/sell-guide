@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>跨境电商 OP 工具包导航</title>
+  <style>
+    :root{
+      --bg:#0b0b0c;--card:#151518;--card2:#1d1d22;--text:#f5f5f7;--muted:#a9a9b2;
+      --line:#2b2b32;--accent:#fff;--good:#bfffc7;--warn:#ffe2a8;--bad:#ffb8b8;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Arial,sans-serif;background:radial-gradient(circle at top right,#262632 0,#0b0b0c 36%);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1200px;margin:0 auto;padding:36px 20px 80px}
+    header{display:grid;gap:16px;margin-bottom:28px}
+    .badge{display:inline-flex;width:max-content;border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--muted);font-size:13px;background:rgba(255,255,255,.04)}
+    h1{font-size:42px;line-height:1.1;margin:0;letter-spacing:-.04em}
+    .sub{color:var(--muted);font-size:16px;max-width:760px;line-height:1.7}
+    .topbar{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(11,11,12,.76);border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;gap:12px;align-items:center;overflow:auto}
+    .tab{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:9px 13px;color:var(--muted);font-size:13px;background:#101014}
+    .tab:hover{color:#fff;border-color:#555}
+    .search{margin:22px 0 28px;display:flex;gap:12px}
+    input{width:100%;border:1px solid var(--line);border-radius:16px;background:#101014;color:#fff;padding:15px 16px;font-size:15px;outline:none}
+    input:focus{border-color:#777}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    section{grid-column:span 12;margin-top:10px}
+    .section-title{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:26px 0 12px}
+    h2{font-size:25px;margin:0;letter-spacing:-.03em}
+    .hint{color:var(--muted);font-size:13px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .card{background:linear-gradient(180deg,var(--card),#111114);border:1px solid var(--line);border-radius:22px;padding:18px;min-height:178px;display:flex;flex-direction:column;gap:12px;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+    .card:hover{transform:translateY(-2px);border-color:#5a5a66;transition:.18s ease}
+    .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    h3{font-size:17px;margin:0}
+    .tag{font-size:12px;color:#ddd;background:#24242a;border:1px solid #34343b;border-radius:999px;padding:5px 8px;white-space:nowrap}
+    p{margin:0;color:var(--muted);line-height:1.65;font-size:14px}
+    .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+    .links a{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;color:#e7e7ec;background:#0d0d10}
+    .links a:hover{background:#fff;color:#000}
+    .formula{grid-column:span 6;background:var(--card2);border:1px solid var(--line);border-radius:22px;padding:18px}
+    .formula code{display:block;white-space:pre-wrap;background:#0e0e12;border:1px solid var(--line);border-radius:14px;padding:14px;color:#f4f4f6;line-height:1.7}
+    .score{grid-column:span 6;background:linear-gradient(135deg,#19191f,#111114);border:1px solid var(--line);border-radius:22px;padding:18px}
+    .score ul{margin:10px 0 0 18px;padding:0;color:var(--muted);line-height:1.9;font-size:14px}
+    .stage{font-size:13px;color:#fff;border-left:3px solid #fff;padding-left:10px;margin-bottom:10px}
+    footer{margin-top:50px;color:var(--muted);font-size:12px;line-height:1.8;border-top:1px solid var(--line);padding-top:18px}
+    @media (max-width:900px){.cards{grid-template-columns:1fr}.formula,.score{grid-column:span 12}h1{font-size:34px}}
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <a class="tab" href="#selection">选品验证</a>
+      <a class="tab" href="#supply">供应链/采购</a>
+      <a class="tab" href="#shipping">物流成本</a>
+      <a class="tab" href="#site">建站/转化</a>
+      <a class="tab" href="#ads">投流/内容</a>
+      <a class="tab" href="#data">数据分析</a>
+      <a class="tab" href="#trust">信任/客服</a>
+      <a class="tab" href="#compliance">合规/税务</a>
+      <a class="tab" href="#calc">计算模型</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <header>
+      <div class="badge">Cross-border E-commerce OP Toolkit · 分级导航</div>
+      <h1>跨境电商 OP 工具包导航</h1>
+      <p class="sub">按业务链路整理：从“发现品”到“验证需求、估算成本、建站转化、投放内容、履约售后、复盘数据”。适合独立站 / TikTok Shop / 小团队起步使用。</p>
+    </header>
+
+    <div class="search">
+      <input id="q" placeholder="搜索工具 / 场景，例如：TikTok、运费、评论、Shopify、广告、SEO、退货..." />
+    </div>
+
+    <section id="selection">
+      <div class="section-title"><h2>01 · 选品与市场验证</h2><span class="hint">先判断需求、趋势、竞争和视频表现力</span></div>
+      <div class="cards">
+        <article class="card" data-key="趋势 google trends 需求 季节性">
+          <div class="row"><h3>Google Trends</h3><span class="tag">需求趋势</span></div>
+          <p>看关键词在不同国家/地区的搜索热度、季节性和增长趋势。适合初筛方向。</p>
+          <div class="links"><a href="https://trends.google.com/trends/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="tiktok creative center top products 爆品 视频 热门商品">
+          <div class="row"><h3>TikTok Creative Center</h3><span class="tag">爆品雷达</span></div>
+          <p>看热门广告、热门视频、Top Products、受众洞察。适合判断产品是否有短视频传播潜力。</p>
+          <div class="links"><a href="https://ads.tiktok.com/business/creativecenter/pc/en" target="_blank">Creative Center</a><a href="https://ads.tiktok.com/business/creativecenter/top-products/pc/en" target="_blank">Top Products</a></div>
+        </article>
+        <article class="card" data-key="meta ad library facebook instagram 广告 spy 竞品">
+          <div class="row"><h3>Meta Ad Library</h3><span class="tag">竞品广告</span></div>
+          <p>搜索 Facebook / Instagram 正在跑的广告。广告长期在线，通常说明产品或素材有一定商业价值。</p>
+          <div class="links"><a href="https://www.facebook.com/ads/library" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="amazon best sellers 类目 销量 竞品">
+          <div class="row"><h3>Amazon Best Sellers</h3><span class="tag">类目热销</span></div>
+          <p>看目标类目真实热卖结构、价格带、评论痛点。适合做竞品拆解。</p>
+          <div class="links"><a href="https://www.amazon.com/Best-Sellers/zgbs" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="aliexpress dropshipping 供应链 零售价格">
+          <div class="row"><h3>AliExpress / Temu / Shein</h3><span class="tag">价格参照</span></div>
+          <p>看海外零售端同款价格、评价、物流承诺。用于判断是否已经卷到极致。</p>
+          <div class="links"><a href="https://www.aliexpress.com/" target="_blank">AliExpress</a><a href="https://www.temu.com/" target="_blank">Temu</a></div>
+        </article>
+        <article class="card" data-key="reddit pinterest youtube shorts 用户洞察">
+          <div class="row"><h3>Reddit / Pinterest / YouTube</h3><span class="tag">内容洞察</span></div>
+          <p>看真实用户讨论、使用场景、痛点和种草素材。尤其适合宠物、桌搭、玩具、数码配件。</p>
+          <div class="links"><a href="https://www.reddit.com/search/" target="_blank">Reddit</a><a href="https://www.pinterest.com/" target="_blank">Pinterest</a><a href="https://www.youtube.com/" target="_blank">YouTube</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="supply">
+      <div class="section-title"><h2>02 · 供应链与采购</h2><span class="hint">看成本、MOQ、交期、质量和可定制空间</span></div>
+      <div class="cards">
+        <article class="card" data-key="1688 采购 工厂 货源">
+          <div class="row"><h3>1688</h3><span class="tag">国内货源</span></div>
+          <p>找源头供应商、看出厂价、MOQ、定制包装。注意同款版权、侵权、质检和售后风险。</p>
+          <div class="links"><a href="https://www.1688.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="alibaba b2b 外贸 工厂">
+          <div class="row"><h3>Alibaba.com</h3><span class="tag">B2B 供应商</span></div>
+          <p>适合找有外贸经验的供应商，沟通认证、包装、样品、出口资料。</p>
+          <div class="links"><a href="https://www.alibaba.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="质检 inspection qima 检测">
+          <div class="row"><h3>QIMA / 第三方验货</h3><span class="tag">品控</span></div>
+          <p>量起来后建议做抽检、出货前验货，尤其是电子、儿童用品、易损品。</p>
+          <div class="links"><a href="https://www.qima.com/" target="_blank">QIMA</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="shipping">
+      <div class="section-title"><h2>03 · 物流、运费与履约</h2><span class="hint">核心是计费重、时效、丢件率、退货地址</span></div>
+      <div class="cards">
+        <article class="card" data-key="yunexpress 云途 物流 专线 运费">
+          <div class="row"><h3>YunExpress 云途</h3><span class="tag">跨境小包</span></div>
+          <p>常见跨境专线服务商之一。用于询价、时效评估、国家覆盖和轨迹查询。</p>
+          <div class="links"><a href="https://www.yunexpress.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="4px 递四方 fulfillment overseas warehouse">
+          <div class="row"><h3>4PX 递四方</h3><span class="tag">履约/海外仓</span></div>
+          <p>适合了解跨境物流、海外仓、一件代发等履约方案。</p>
+          <div class="links"><a href="https://www.4px.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="17track tracking 查询 物流轨迹">
+          <div class="row"><h3>17TRACK</h3><span class="tag">轨迹查询</span></div>
+          <p>用户售后和客服常用工具，用于跟踪包裹状态、减少“没收到货”焦虑。</p>
+          <div class="links"><a href="https://www.17track.net/" target="_blank">打开</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="site">
+      <div class="section-title"><h2>04 · 建站、支付与转化</h2><span class="hint">网站不是壁垒，但会影响信任和转化率</span></div>
+      <div class="cards">
+        <article class="card" data-key="shopify 独立站 saas 建站">
+          <div class="row"><h3>Shopify</h3><span class="tag">独立站</span></div>
+          <p>最快上线的独立站方案，生态成熟，适合快速验证产品和素材。</p>
+          <div class="links"><a href="https://www.shopify.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="stripe 支付 收款 信用卡">
+          <div class="row"><h3>Stripe</h3><span class="tag">支付</span></div>
+          <p>独立站常用支付方案之一。需要关注可开通地区、拒付、风控和结算周期。</p>
+          <div class="links"><a href="https://stripe.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="paypal 支付 信任 买家保护">
+          <div class="row"><h3>PayPal</h3><span class="tag">支付/信任</span></div>
+          <p>海外用户熟悉度高，但要注意争议、冻结和资金安全。</p>
+          <div class="links"><a href="https://www.paypal.com/business" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="judge.me reviews 评论 shopify 信任">
+          <div class="row"><h3>Judge.me</h3><span class="tag">评论系统</span></div>
+          <p>收集和展示商品评论、星级、UGC 图片/视频，降低独立站信任成本。</p>
+          <div class="links"><a href="https://apps.shopify.com/judgeme" target="_blank">Shopify App</a></div>
+        </article>
+        <article class="card" data-key="loox photo reviews shopify 评论 ugc">
+          <div class="row"><h3>Loox</h3><span class="tag">图片评论</span></div>
+          <p>偏视觉化评论展示，适合需要 UGC 增强信任的产品。</p>
+          <div class="links"><a href="https://loox.io/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="hotjar microsoft clarity 热力图 转化">
+          <div class="row"><h3>Clarity / Hotjar</h3><span class="tag">转化分析</span></div>
+          <p>录屏、热力图、点击行为分析，用来发现商品页卡点。</p>
+          <div class="links"><a href="https://clarity.microsoft.com/" target="_blank">Clarity</a><a href="https://www.hotjar.com/" target="_blank">Hotjar</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="ads">
+      <div class="section-title"><h2>05 · 内容、广告与素材</h2><span class="hint">现在更像“选素材”，同品不同素材差距巨大</span></div>
+      <div class="cards">
+        <article class="card" data-key="tiktok ads 广告 投流">
+          <div class="row"><h3>TikTok Ads Manager</h3><span class="tag">短视频广告</span></div>
+          <p>适合爆品测试、素材测试、兴趣人群测试。关键看 CTR、CPA、CVR。</p>
+          <div class="links"><a href="https://ads.tiktok.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="meta ads facebook instagram 投流">
+          <div class="row"><h3>Meta Ads Manager</h3><span class="tag">社媒广告</span></div>
+          <p>Facebook / Instagram 投放后台。适合素材批量测试和再营销。</p>
+          <div class="links"><a href="https://business.facebook.com/adsmanager" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="google ads shopping search seo">
+          <div class="row"><h3>Google Ads / Merchant Center</h3><span class="tag">搜索/购物</span></div>
+          <p>适合有明确搜索需求的产品。需要商品 Feed、落地页质量和价格竞争力。</p>
+          <div class="links"><a href="https://ads.google.com/" target="_blank">Google Ads</a><a href="https://merchants.google.com/" target="_blank">Merchant Center</a></div>
+        </article>
+        <article class="card" data-key="canva 素材 图片 视频 创意">
+          <div class="row"><h3>Canva</h3><span class="tag">轻设计</span></div>
+          <p>做广告图、商品图、社媒封面、简单视频模板。</p>
+          <div class="links"><a href="https://www.canva.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="capcut 剪映 视频 tiktok">
+          <div class="row"><h3>CapCut</h3><span class="tag">短视频剪辑</span></div>
+          <p>TikTok 生态常用剪辑工具，适合批量做短视频素材版本。</p>
+          <div class="links"><a href="https://www.capcut.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="similarweb semrush 流量 seo 竞品">
+          <div class="row"><h3>Similarweb / Semrush</h3><span class="tag">流量/SEO</span></div>
+          <p>看竞品流量来源、关键词、广告和外链。适合做长期内容站和 AI 搜索布局。</p>
+          <div class="links"><a href="https://www.similarweb.com/" target="_blank">Similarweb</a><a href="https://www.semrush.com/" target="_blank">Semrush</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="data">
+      <div class="section-title"><h2>06 · 数据复盘与利润模型</h2><span class="hint">每天盯的不是订单数，而是单位经济模型</span></div>
+      <div class="cards">
+        <article class="card" data-key="google analytics ga4 数据 分析">
+          <div class="row"><h3>Google Analytics 4</h3><span class="tag">站内数据</span></div>
+          <p>看流量来源、转化路径、商品页表现、漏斗和事件数据。</p>
+          <div class="links"><a href="https://analytics.google.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="looker studio 报表 bi 可视化">
+          <div class="row"><h3>Looker Studio</h3><span class="tag">报表</span></div>
+          <p>把广告、站内、订单数据做成可视化看板，适合周复盘。</p>
+          <div class="links"><a href="https://lookerstudio.google.com/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="google sheets excel 利润表 选品表">
+          <div class="row"><h3>Google Sheets / Excel</h3><span class="tag">基础模型</span></div>
+          <p>前期最实用：做选品评分表、利润表、运费表、广告测试表。</p>
+          <div class="links"><a href="https://sheets.google.com/" target="_blank">Sheets</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="trust">
+      <div class="section-title"><h2>07 · 信任、客服与售后</h2><span class="hint">降低用户不敢买、不敢等、不敢相信的成本</span></div>
+      <div class="cards">
+        <article class="card" data-key="trustpilot 评论 信任 品牌">
+          <div class="row"><h3>Trustpilot</h3><span class="tag">品牌评价</span></div>
+          <p>适合做品牌级信任背书。前期不一定必需，但要理解它的作用。</p>
+          <div class="links"><a href="https://www.trustpilot.com/business" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="zendesk gorgias 客服 工单">
+          <div class="row"><h3>Gorgias / Zendesk</h3><span class="tag">客服工单</span></div>
+          <p>订单查询、退款、物流问题、邮件客服。订单多了以后比邮箱更稳。</p>
+          <div class="links"><a href="https://www.gorgias.com/" target="_blank">Gorgias</a><a href="https://www.zendesk.com/" target="_blank">Zendesk</a></div>
+        </article>
+        <article class="card" data-key="aftership 物流通知 tracking">
+          <div class="row"><h3>AfterShip</h3><span class="tag">物流通知</span></div>
+          <p>自动发货通知、物流追踪页，降低用户催单和退款焦虑。</p>
+          <div class="links"><a href="https://www.aftership.com/" target="_blank">打开</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="compliance">
+      <div class="section-title"><h2>08 · 合规、税务与风险检查</h2><span class="hint">儿童用品、电子、食品接触、侵权类要特别谨慎</span></div>
+      <div class="cards">
+        <article class="card" data-key="cpsc 儿童玩具 美国 合规">
+          <div class="row"><h3>CPSC</h3><span class="tag">美国消费品安全</span></div>
+          <p>儿童用品、玩具、带电产品要重点看安全标准、标签和测试要求。</p>
+          <div class="links"><a href="https://www.cpsc.gov/" target="_blank">打开</a></div>
+        </article>
+        <article class="card" data-key="eu gpsr ce rohs 欧洲 合规">
+          <div class="row"><h3>EU Safety Gate / CE / RoHS</h3><span class="tag">欧盟风险</span></div>
+          <p>欧盟市场关注产品安全、CE、RoHS、GPSR 等要求。电子和玩具尤其要谨慎。</p>
+          <div class="links"><a href="https://ec.europa.eu/safety-gate-alerts/" target="_blank">Safety Gate</a></div>
+        </article>
+        <article class="card" data-key="trademark copyright 版权 商标 侵权">
+          <div class="row"><h3>USPTO / WIPO</h3><span class="tag">商标/版权</span></div>
+          <p>卖“卡皮巴拉同款”“IP 周边”“动漫玩具”前，先查商标和版权风险。</p>
+          <div class="links"><a href="https://www.uspto.gov/trademarks/search" target="_blank">USPTO</a><a href="https://branddb.wipo.int/" target="_blank">WIPO</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="calc">
+      <div class="section-title"><h2>09 · 选品计算模型</h2><span class="hint">建议每个候选产品都先过一遍</span></div>
+      <div class="grid">
+        <div class="formula">
+          <div class="stage">单件利润</div>
+          <code>净利润 = 售价 - 产品成本 - 头程/尾程运费 - 广告获客成本 - 平台抽佣 - 支付手续费 - 包装成本 - 售后损耗 - 税费</code>
+        </div>
+        <div class="formula">
+          <div class="stage">计费重</div>
+          <code>计费重 = max(实际重量, 体积重)
+体积重(kg) = 长(cm) × 宽(cm) × 高(cm) ÷ 6000
+注意：大而轻的产品，运费可能比货贵。</code>
+        </div>
+        <div class="formula">
+          <div class="stage">广告模型</div>
+          <code>CPA = 广告花费 ÷ 成交订单数
+ROAS = 销售额 ÷ 广告花费
+盈亏平衡 ROAS = 售价 ÷ 单件毛利</code>
+        </div>
+        <div class="formula">
+          <div class="stage">页面漏斗</div>
+          <code>访客 → 商品页浏览 → 加购 → 发起结账 → 支付成功
+重点看：CTR、CVR、ATC、Checkout Rate、Payment Rate</code>
+        </div>
+        <div class="score">
+          <div class="stage">选品评分建议</div>
+          <ul>
+            <li>视频表现力：是否 3 秒能看懂、能演示、能制造情绪？</li>
+            <li>利润空间：扣除运费和广告后，是否还有 20%+ 净利空间？</li>
+            <li>售后风险：是否易坏、尺寸复杂、容易产生预期差？</li>
+            <li>合规风险：是否涉及儿童、食品接触、电池、版权/IP？</li>
+            <li>竞争程度：同款是否已经被 Temu/Amazon/独立站卷穿？</li>
+          </ul>
+        </div>
+        <div class="score">
+          <div class="stage">新手优先级</div>
+          <ul>
+            <li>优先：小、轻、不易碎、演示强、客单价 $20-$80。</li>
+            <li>谨慎：服装、尺码品、强售后电子、易碎品、强 IP 周边。</li>
+            <li>起步：先用表格做模型，再小预算测素材，不要一次性囤货。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      说明：本页是工具导航和运营框架，不构成法律、税务或合规意见。涉及儿童玩具、电子、电池、医疗、食品接触、品牌 IP 的产品，应单独做目标市场合规确认。
+    </footer>
+  </main>
+
+  <script>
+    const q = document.getElementById('q');
+    const cards = [...document.querySelectorAll('.card')];
+    q.addEventListener('input', () => {
+      const s = q.value.trim().toLowerCase();
+      cards.forEach(card => {
+        const text = (card.innerText + ' ' + (card.dataset.key || '')).toLowerCase();
+        card.style.display = !s || text.includes(s) ? 'flex' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
