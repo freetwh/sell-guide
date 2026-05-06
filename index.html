@@ -503,6 +503,15 @@ ROAS = 销售额 ÷ 广告花费
       return file ? JSON.parse(file.content) : [];
     }
 
+    async function findExistingGist(token) {
+      const res = await fetch('https://api.github.com/gists?per_page=100', {
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (!res.ok) throw new Error(`查询 Gist 失败: ${res.status}`);
+      const gists = await res.json();
+      return gists.find(g => g.files && g.files[GIST_FILENAME]);
+    }
+
     async function createGist(token, notes) {
       const res = await fetch('https://api.github.com/gists', {
         method: 'POST',
@@ -545,13 +554,25 @@ ROAS = 销售额 ÷ 广告花费
         let notes;
 
         if (!cfg.gistId) {
-          // 首次：用本地数据创建 Gist
-          notes = getLocalNotes();
-          const gistId = await createGist(cfg.token, notes);
-          cfg.gistId = gistId;
-          saveConfig(cfg);
-          document.getElementById('gistIdInput').value = gistId;
-          setStatus('首次同步完成，Gist 已创建', '#bfffc7');
+          // 查找已有的 Gist
+          const existing = await findExistingGist(cfg.token);
+          if (existing) {
+            // 找到了，拉取数据
+            cfg.gistId = existing.id;
+            saveConfig(cfg);
+            document.getElementById('gistIdInput').value = existing.id;
+            notes = await fetchGist(cfg.token, existing.id);
+            saveLocalNotes(notes);
+            setStatus('已找到并拉取云端笔记', '#bfffc7');
+          } else {
+            // 没找到，用本地数据创建
+            notes = getLocalNotes();
+            const gistId = await createGist(cfg.token, notes);
+            cfg.gistId = gistId;
+            saveConfig(cfg);
+            document.getElementById('gistIdInput').value = gistId;
+            setStatus('首次同步完成，Gist 已创建', '#bfffc7');
+          }
         } else if (direction === 'pull') {
           notes = await fetchGist(cfg.token, cfg.gistId);
           saveLocalNotes(notes);
