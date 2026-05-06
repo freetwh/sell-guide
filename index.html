@@ -46,6 +46,33 @@
     .stage{font-size:13px;color:#fff;border-left:3px solid #fff;padding-left:10px;margin-bottom:10px}
     footer{margin-top:50px;color:var(--muted);font-size:12px;line-height:1.8;border-top:1px solid var(--line);padding-top:18px}
     @media (max-width:900px){.cards{grid-template-columns:1fr}.formula,.score{grid-column:span 12}h1{font-size:34px}}
+
+    /* 知识库笔记样式 */
+    .notes-section{margin-top:40px;padding-top:30px;border-top:1px solid var(--line)}
+    .note-input-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+    .note-input-wrap textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:#101014;color:#fff;padding:14px 16px;font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit;line-height:1.6}
+    .note-input-wrap textarea:focus{border-color:#777}
+    .note-actions{display:flex;gap:12px;align-items:center}
+    .note-actions input{flex:1;border:1px solid var(--line);border-radius:999px;background:#101014;color:#fff;padding:11px 16px;font-size:13px;outline:none}
+    .note-actions input:focus{border-color:#777}
+    .note-actions button{white-space:nowrap;border:none;border-radius:999px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#000;transition:.18s ease}
+    .note-actions button:hover{background:#e0e0e0}
+    .note-filter{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+    .note-filter input{flex:1;border:1px solid var(--line);border-radius:999px;background:#101014;color:#fff;padding:11px 16px;font-size:13px;outline:none}
+    .note-filter input:focus{border-color:#777}
+    .note-count{color:var(--muted);font-size:12px;white-space:nowrap}
+    .note-list{display:flex;flex-direction:column;gap:10px}
+    .note-item{background:linear-gradient(180deg,var(--card),#111114);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;position:relative}
+    .note-item:hover{border-color:#5a5a66}
+    .note-content{color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+    .note-meta{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .note-tags{display:flex;flex-wrap:wrap;gap:6px}
+    .note-tag{font-size:11px;color:#ddd;background:#24242a;border:1px solid #34343b;border-radius:999px;padding:4px 8px;cursor:pointer;transition:.15s ease}
+    .note-tag:hover{background:#333;border-color:#555}
+    .note-date{color:var(--muted);font-size:11px;white-space:nowrap}
+    .note-delete{position:absolute;top:12px;right:12px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px;transition:.15s ease}
+    .note-delete:hover{color:#ffb8b8;background:rgba(255,184,184,.1)}
+    .empty-note{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px}
   </style>
 </head>
 <body>
@@ -73,6 +100,23 @@
     <div class="search">
       <input id="q" placeholder="搜索工具 / 场景，例如：TikTok、运费、评论、Shopify、广告、SEO、退货..." />
     </div>
+
+    <!-- 知识库笔记 -->
+    <section id="notes" class="notes-section">
+      <div class="section-title"><h2>知识库笔记</h2><span class="hint">记录运营经验和关键知识点，数据保存在本地浏览器</span></div>
+      <div class="note-input-wrap">
+        <textarea id="noteInput" placeholder="输入笔记内容，例如：TikTok 这种海外平台要求 IP 干净，否则可能会影响推流" rows="3"></textarea>
+        <div class="note-actions">
+          <input id="noteTags" placeholder="标签（可选，用逗号分隔）" />
+          <button id="addNoteBtn">添加笔记</button>
+        </div>
+      </div>
+      <div class="note-filter">
+        <input id="noteSearch" placeholder="搜索笔记内容或标签..." />
+        <span id="noteCount" class="note-count"></span>
+      </div>
+      <div id="noteList" class="note-list"></div>
+    </section>
 
     <section id="selection">
       <div class="section-title"><h2>01 · 选品与市场验证</h2><span class="hint">先判断需求、趋势、竞争和视频表现力</span></div>
@@ -338,6 +382,7 @@ ROAS = 销售额 ÷ 广告花费
   </main>
 
   <script>
+    // 搜索功能
     const q = document.getElementById('q');
     const cards = [...document.querySelectorAll('.card')];
     q.addEventListener('input', () => {
@@ -347,6 +392,115 @@ ROAS = 销售额 ÷ 广告花费
         card.style.display = !s || text.includes(s) ? 'flex' : 'none';
       });
     });
+
+    // 知识库笔记功能
+    const STORAGE_KEY = 'sell-guide-notes';
+
+    function getNotes() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveNotes(notes) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    }
+
+    function formatDate(ts) {
+      const d = new Date(ts);
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function renderNotes(filter = '') {
+      const notes = getNotes();
+      const list = document.getElementById('noteList');
+      const countEl = document.getElementById('noteCount');
+      const keyword = filter.trim().toLowerCase();
+
+      const filtered = keyword
+        ? notes.filter(n => n.content.toLowerCase().includes(keyword) || (n.tags || []).some(t => t.toLowerCase().includes(keyword)))
+        : notes;
+
+      countEl.textContent = `共 ${notes.length} 条笔记`;
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-note">${notes.length === 0 ? '还没有笔记，在上方输入框添加第一条吧' : '没有匹配的笔记'}</div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map((note, i) => {
+        const tagsHtml = (note.tags || []).map(t => `<span class="note-tag" data-tag="${t}">${t}</span>`).join('');
+        return `
+          <div class="note-item" data-index="${notes.indexOf(note)}">
+            <div class="note-content">${escapeHtml(note.content)}</div>
+            <div class="note-meta">
+              <div class="note-tags">${tagsHtml}</div>
+              <span class="note-date">${formatDate(note.createdAt)}</span>
+            </div>
+            <button class="note-delete" title="删除">&times;</button>
+          </div>`;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function addNote() {
+      const input = document.getElementById('noteInput');
+      const tagsInput = document.getElementById('noteTags');
+      const content = input.value.trim();
+      if (!content) return;
+
+      const tags = tagsInput.value
+        .split(/[,，]/)
+        .map(t => t.trim())
+        .filter(Boolean);
+
+      const notes = getNotes();
+      notes.unshift({ content, tags, createdAt: Date.now() });
+      saveNotes(notes);
+
+      input.value = '';
+      tagsInput.value = '';
+      renderNotes(document.getElementById('noteSearch').value);
+    }
+
+    function deleteNote(index) {
+      const notes = getNotes();
+      notes.splice(index, 1);
+      saveNotes(notes);
+      renderNotes(document.getElementById('noteSearch').value);
+    }
+
+    // 事件绑定
+    document.getElementById('addNoteBtn').addEventListener('click', addNote);
+    document.getElementById('noteInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addNote();
+    });
+
+    document.getElementById('noteSearch').addEventListener('input', e => {
+      renderNotes(e.target.value);
+    });
+
+    document.getElementById('noteList').addEventListener('click', e => {
+      if (e.target.classList.contains('note-delete')) {
+        const index = parseInt(e.target.closest('.note-item').dataset.index);
+        deleteNote(index);
+      }
+      if (e.target.classList.contains('note-tag')) {
+        document.getElementById('noteSearch').value = e.target.dataset.tag;
+        renderNotes(e.target.dataset.tag);
+      }
+    });
+
+    // 初始化
+    renderNotes();
   </script>
 </body>
 </html>
