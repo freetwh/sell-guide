@@ -27,7 +27,7 @@ Use for: desk gadgets, smart hardware, accessories, design products.
 
 - Background: off-white, charcoal, soft gray.
 - Typography: large sans headlines, tight line height.
-- Components: large cards, thin borders, restrained shadows.
+- Components: large cards, thin borders, no shadows — use border or background contrast instead.
 - Copy mood: confident, concise, refined.
 - Avoid: cartoon icons, noisy gradients.
 
@@ -55,7 +55,7 @@ Use for: TikTok products, novelty gadgets, visual demo products.
 
 Use for: plush, lamps, home gifts, seasonal items.
 
-- Background: warm gradient, soft shadows, lifestyle imagery.
+- Background: warm gradient, no shadows — use background color contrast, lifestyle imagery.
 - Typography: gentle headline with story tone.
 - Components: gift badges, occasion cards, testimonial-style story blocks.
 - Copy mood: sentimental, comforting, giftable.
@@ -114,6 +114,7 @@ Never invent exact delivery times, certifications, or review counts.
 
 ## Component style
 
+- **Do not use shadows** (`shadow`, `box-shadow`, `drop-shadow`). Use border, background color contrast, or spacing to separate elements. Shadows add visual noise and feel dated on modern DTC sites.
 - Mobile CTA must be visible after scroll.
 - CTA button text should be action-driven:
   - “Get Yours”
@@ -133,3 +134,11 @@ Ask user to provide or generate:
 - 1 transparent PNG product cutout
 - 1 packaging/shipping image if available
 - 3 short UGC-style clips for ads
+
+**Placeholder images:** When real product photos are not available, use Unsplash source images as placeholders. Use direct Unsplash URLs with relevant keywords:
+
+```
+https://images.unsplash.com/photo-{id}?w=800&h=600&fit=crop
+```
+
+Search Unsplash for product-relevant keywords (e.g., "hanfu", "traditional dress", "pet toy", "desk gadget") and pick photos that match the product context. Always add a descriptive `alt` text and mark the image as a placeholder in code comments. Never use emoji, colored divs, or generic stock placeholders.

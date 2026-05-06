@@ -318,6 +318,8 @@ export const product = {
 - Add alt text for images.
 - Keep Lighthouse-friendly performance.
 - Prefer CSS/Tailwind over runtime animation libraries unless needed.
+- **Do not use shadows** (`shadow-*`, `box-shadow`, `drop-shadow`). Use border, background color, or spacing for visual separation.
+- **Placeholder images**: use Unsplash source URLs with product-relevant keywords. Never use emoji, colored divs, or generic gray boxes as image placeholders.
 - Add analytics event stubs:
   - `view_product`
   - `click_buy_now`
@@ -742,6 +744,8 @@ Bad output:
 - no SEO metadata
 - desktop-only layout
 - category-generic copy
+- shadows on cards, sections, or buttons
+- emoji or colored divs as image placeholders
 
 Good output:
 
