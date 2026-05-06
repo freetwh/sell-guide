@@ -11,6 +11,10 @@ The Skill turns a product idea into a focused DTC landing page with:
 - SSR/SEO requirements
 - category-aware positioning
 - trust and conversion sections
+- Stripe payment integration
+- GA4 + Meta Pixel analytics
+- email capture and transactional emails
+- Next.js built-in backend (no separate server)
 - launch checklist
 
 ## Files
@@ -21,7 +25,8 @@ crossborder-emotion-commerce-skill/
 ├── references/
 │   ├── design-system.md
 │   ├── category-positioning.md
-│   └── conversion-checklist.md
+│   ├── conversion-checklist.md
+│   └── measurement-plan.md
 └── assets/
     └── AGENTS.template.md
 ```

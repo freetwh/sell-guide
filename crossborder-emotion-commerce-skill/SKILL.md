@@ -49,15 +49,22 @@ Ask only if the product is ambiguous enough to affect legality, positioning, or 
 
 Use:
 
-- Next.js App Router
+- Next.js App Router (deployed to Cloudflare Pages via `@cloudflare/next-on-pages`)
 - TypeScript
 - React Server Components where useful
 - SSR/SSG-friendly metadata
 - Tailwind CSS
 - shadcn/ui style components if already installed
 - plain local data files for the first version
-- Stripe Payment Link or placeholder checkout route for MVP
+- Stripe Checkout (hosted) for payment
+- Cloudflare D1 (SQLite) + Drizzle ORM for order/subscriber storage
+- Cloudflare Images for product image optimization
+- GA4 + Meta Pixel for analytics
+- Resend or Cloudflare Email Service for transactional email
 - no heavy CMS unless user requests it
+- no separate backend project — use Next.js API Routes + Server Actions on Cloudflare Workers
+
+Deployment target: **Cloudflare Pages + Workers** (free tier allows commercial use, unlimited bandwidth, no egress fees).
 
 Avoid:
 
@@ -67,6 +74,8 @@ Avoid:
 - fake reviews that look real
 - unsupported medical/health/safety claims
 - copyrighted brand names or protected character assets unless user has rights
+- using `next/image` default loader (use Cloudflare Images or unoptimized instead)
+- Node.js APIs in middleware (not supported on Cloudflare Workers runtime)
 
 ## Repository behavior
 
@@ -92,11 +101,19 @@ If modifying an existing project:
 ```txt
 .
 ├── AGENTS.md
+├── .dev.vars                             # local secrets (Stripe keys, etc.) — gitignored
+├── wrangler.toml                         # Cloudflare Pages + D1 config
 ├── app/
-│   ├── layout.tsx
+│   ├── layout.tsx                        # inject analytics scripts, cookie consent
 │   ├── page.tsx
 │   ├── globals.css
-│   └── product/[slug]/page.tsx          # optional when multi-product testing
+│   ├── robots.ts                         # generates robots.txt
+│   ├── sitemap.ts                        # generates sitemap.xml
+│   ├── product/[slug]/page.tsx           # optional when multi-product testing
+│   └── api/
+│       ├── checkout/route.ts             # create Stripe Checkout Session
+│       ├── stripe/webhook/route.ts       # handle Stripe webhooks
+│       └── subscribe/route.ts            # email capture endpoint
 ├── src/
 │   ├── config/
 │   │   ├── product.ts
@@ -112,16 +129,28 @@ If modifying an existing project:
 │   │   │   ├── OfferStack.tsx
 │   │   │   ├── FAQ.tsx
 │   │   │   └── FinalCTA.tsx
-│   │   └── ui/
-│   └── lib/
-│       ├── seo.ts
-│       └── analytics-events.ts
+│   │   ├── ui/
+│   │   └── analytics/
+│   │       ├── GoogleAnalytics.tsx       # GA4 script injection
+│   │       ├── MetaPixel.tsx             # Meta/Facebook pixel
+│   │       └── EventTracker.tsx          # client-side event tracking wrapper
+│   ├── lib/
+│   │   ├── seo.ts
+│   │   ├── analytics.ts                  # event dispatch helpers (gtag, fbq, custom)
+│   │   ├── db.ts                         # D1 database client via Drizzle
+│   │   └── stripe.ts                     # Stripe client singleton
+│   ├── db/
+│   │   └── schema.ts                     # D1 orders, subscribers tables (SQLite)
+│   └── actions/
+│       └── checkout.ts                   # Server Action for checkout flow
 ├── docs/
 │   ├── assumptions.md
 │   ├── conversion-checklist.md
 │   └── measurement-plan.md
 └── public/
-    └── product/
+    ├── product/
+    ├── robots.txt                        # optional if using app/robots.ts
+    └── og-image.jpg                      # required for social sharing
 ```
 
 ## Build workflow
@@ -320,6 +349,385 @@ When completing the task, report:
 - how to run locally
 - what media assets the user still needs
 - what to test first
+
+### Step 10: Payment integration
+
+For MVP, use Stripe Checkout (hosted or embedded). Do not build a custom payment form.
+
+**Architecture:**
+
+- `app/api/checkout/route.ts` — creates a Stripe Checkout Session with product/price from config, returns session URL
+- `app/api/stripe/webhook/route.ts` — receives Stripe events, verifies signature with `stripe.webhooks.constructEvent(await req.text(), sig, secret)`, handles `checkout.session.completed` to store order
+- Client CTA buttons call the checkout route and redirect to Stripe
+- Store order in database on successful payment (see Step 12)
+
+**Required env vars:**
+
+```
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+```
+
+**Checkout Session must include:**
+
+- `line_items` with product name, price, quantity
+- `mode: 'payment'` for one-time purchases
+- `success_url` and `cancel_url`
+- `metadata` with product slug for tracking
+- `shipping_address_collection` if physical product
+- `allow_promotion_codes: true` if coupon support is needed
+
+**Webhook must handle:**
+
+- `checkout.session.completed` — store order, send confirmation
+- `checkout.session.expired` — optional cleanup
+- Idempotent processing: check event ID in DB before acting
+
+**Do NOT:**
+
+- Build a custom credit card form (PCI compliance burden)
+- Store card numbers
+- Use Stripe Elements unless user explicitly requests embedded checkout
+
+### Step 11: Analytics and tracking
+
+Every generated site must include a measurement layer. Do not just add event stubs — wire up real tracking.
+
+**Minimum viable analytics stack:**
+
+1. **Google Analytics 4 (GA4)** — page views, conversions, audience
+   - Inject `gtag.js` in `layout.tsx` via Next.js `<Script>` component
+   - Use `NEXT_PUBLIC_GA_ID` env var
+   - Create `src/lib/analytics.ts` with typed event helpers
+
+2. **Meta Pixel** — Facebook/Instagram ad conversion tracking
+   - Inject pixel script in `layout.tsx`
+   - Use `NEXT_PUBLIC_META_PIXEL_ID` env var
+   - Track `PageView`, `ViewContent`, `InitiateCheckout`, `Purchase` events
+
+3. **Custom event tracking** — dispatch to both GA4 and Meta
+   - Create `src/lib/analytics.ts` with unified `trackEvent()` function
+   - Events to track:
+     - `view_product` — page load with product metadata
+     - `click_buy_now` — CTA button click with product/price
+     - `view_checkout` — checkout page load
+     - `initiate_checkout` — checkout started (Meta standard event)
+     - `purchase` — successful payment with value/currency
+     - `faq_expand` — FAQ interaction
+     - `video_play` — demo video engagement
+     - `scroll_depth` — 25/50/75/100% scroll milestones
+     - `newsletter_signup` — email capture
+
+4. **Component structure:**
+   - `src/components/analytics/GoogleAnalytics.tsx` — `<Script>` wrapper for gtag
+   - `src/components/analytics/MetaPixel.tsx` — `<Script>` wrapper for fbq
+   - Inject both in `layout.tsx` `<head>`
+
+**Measurement plan (`docs/measurement-plan.md`):**
+
+Create a document listing:
+- KPIs (conversion rate, CPA, ROAS, bounce rate)
+- Event taxonomy (event name, trigger, parameters, destination)
+- Conversion funnel stages
+- Ad platform pixel events mapping
+
+**Do NOT:**
+
+- Add analytics scripts without env var guards (breaks SSR/build)
+- Use `window.gtag` without null checks
+- Track PII (email, name) in analytics events
+- Block page load on analytics scripts (use `strategy="afterInteractive"`)
+
+### Step 12: Backend architecture
+
+Deploy Next.js to **Cloudflare Pages + Workers**. Do NOT create a separate backend project.
+
+**Why Cloudflare over Vercel:**
+
+- Free tier allows commercial use (Vercel Hobby does not)
+- Unlimited bandwidth, no egress fees
+- D1 database free tier: 5GB storage + 5M reads/day + 100K writes/day
+- Fixed cost: $0-5/month vs Vercel's $20/month minimum
+- No surprise bandwidth overage bills
+
+**Why built-in backend wins:**
+
+- Stripe webhook handling via Route Handlers is reliable on Cloudflare Workers
+- Server Actions handle checkout mutations with no CORS overhead
+- One deployment pipeline, one codebase, one type system
+
+**Deployment setup:**
+
+- Use `@cloudflare/next-on-pages` to build Next.js for Cloudflare
+- Configure `wrangler.toml` with D1 database binding
+- Set secrets via `wrangler secret put` (Stripe keys, etc.)
+- Image optimization: use `unoptimized: true` in `next.config.ts` or Cloudflare Images (Next.js default image loader does not work on Cloudflare)
+
+**Database: Cloudflare D1 (SQLite)**
+
+- **D1** — serverless SQLite on Cloudflare edge, free tier covers MVP
+- **ORM: Drizzle** with `drizzle-orm/d1` adapter — type-safe, minimal boilerplate
+- No egress fees, no connection pooling needed (serverless)
+
+**Minimum schema (SQLite via Drizzle):**
+
+```ts
+// src/db/schema.ts
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+
+export const orders = sqliteTable('orders', {
+  id: text('id').primaryKey(),
+  stripeSessionId: text('stripe_session_id').unique(),
+  email: text('email'),
+  productSlug: text('product_slug'),
+  amount: integer('amount'),           // in cents
+  currency: text('currency').default('usd'),
+  status: text('status').default('pending'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+
+export const subscribers = sqliteTable('subscribers', {
+  id: text('id').primaryKey(),
+  email: text('email').unique(),
+  source: text('source'),              // 'landing_page', 'exit_intent', etc.
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+});
+```
+
+**wrangler.toml:**
+
+```toml
+name = "hanfu-store"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hanfu-store-db"
+database_id = "<your-d1-database-id>"
+```
+
+**D1 client setup:**
+
+```ts
+// src/lib/db.ts
+import { drizzle } from 'drizzle-orm/d1';
+import * as schema from '@/db/schema';
+
+export function getDb(env: CloudflareEnv) {
+  return drizzle(env.DB, { schema });
+}
+```
+
+**Accessing D1 in Route Handlers / Server Actions:**
+
+```ts
+// In Route Handlers — access via context
+export async function POST(request: Request) {
+  const db = getDb(process.env);  // Cloudflare Pages auto-binds D1
+  // ... use db
+}
+```
+
+**API routes needed:**
+
+- `POST /api/checkout` — create Stripe Checkout Session
+- `POST /api/stripe/webhook` — handle payment events
+- `POST /api/subscribe` — email capture
+
+**Do NOT:**
+
+- Build a REST API with CRUD for products (use config files)
+- Add authentication unless user explicitly needs accounts
+- Use a headless CMS unless user requests it
+- Over-engineer with microservices for a single-product site
+- Use `next/image` default loader (not supported on Cloudflare)
+
+### Step 13: Email and marketing
+
+**Email capture (minimum viable):**
+
+- Add newsletter signup form in landing page (below CTA or as exit-intent)
+- `POST /api/subscribe` stores email in `subscribers` table
+- Use env vars for email service: `MAILCHIMP_API_KEY` or `RESEND_API_KEY`
+- Server Action sends subscriber to email service on form submit
+
+**Transactional emails:**
+
+- Order confirmation email on `checkout.session.completed`
+- Use Resend, SendGrid, or Postmark (not raw SMTP)
+- Template should include: order summary, shipping timeline, support contact
+
+**Marketing integrations to expose in config:**
+
+```ts
+// src/config/site.ts — add marketing section
+marketing: {
+  googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID,
+  metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID,
+  mailchimpAudienceId: process.env.NEXT_PUBLIC_MAILCHIMP_AUDIENCE_ID,
+  tiktokPixelId: process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID,   // optional
+  googleAdsId: process.env.NEXT_PUBLIC_GOOGLE_ADS_ID,        // optional
+}
+```
+
+**UTM tracking:**
+
+- Preserve UTM parameters across navigation (store in sessionStorage or cookie)
+- Pass UTM data to Stripe Checkout Session metadata for attribution
+- Create `src/lib/utm.ts` to parse and persist UTM params
+
+### Step 14: SEO completeness
+
+Step 4 covers metadata basics. This step ensures SEO is actually complete and production-ready.
+
+**Must generate (not just define):**
+
+- `app/robots.ts` — Next.js metadata API, allows all crawlers, points to sitemap
+- `app/sitemap.ts` — dynamic sitemap with all pages, last modified dates
+- JSON-LD schemas must be **injected into the page** via `<script type="application/ld+json">`, not just generated in a utility file
+- Canonical URL on every page
+- OG image must **actually exist** in `/public/` — do not reference a missing file
+- Product images must have descriptive `alt` text, not empty strings
+
+**JSON-LD required schemas:**
+
+- `Product` schema with name, description, image, price, availability, brand
+- `FAQPage` schema for FAQ section
+- `Organization` schema in layout for site-level entity
+- `BreadcrumbList` if multi-page
+
+**Check before launch:**
+
+- [ ] `robots.txt` renders at `/robots.txt`
+- [ ] `sitemap.xml` renders at `/sitemap.xml`
+- [ ] OG image exists and is 1200x630px
+- [ ] JSON-LD validates at Google Rich Results Test
+- [ ] All pages have unique `<title>` and `<meta description>`
+- [ ] Canonical URLs point to production domain
+- [ ] No broken internal links
+- [ ] Images have descriptive alt text
+
+### Step 15: Deployment to Cloudflare
+
+**Setup commands:**
+
+```bash
+# Install dependencies
+npm install -D @cloudflare/next-on-pages wrangler
+
+# Create D1 database
+wrangler d1 create hanfu-store-db
+# Copy the database_id into wrangler.toml
+
+# Run D1 migrations locally
+npx drizzle-kit push
+
+# Set production secrets
+wrangler secret put STRIPE_SECRET_KEY
+wrangler secret put STRIPE_WEBHOOK_SECRET
+
+# Build for Cloudflare
+npx @cloudflare/next-on-pages
+
+# Deploy
+wrangler pages deploy .vercel/output/static
+```
+
+**next.config.ts for Cloudflare:**
+
+```ts
+const nextConfig = {
+  images: {
+    unoptimized: true,  // required — Next.js image optimizer not available on CF
+  },
+};
+```
+
+**Stripe webhook URL (set in Stripe Dashboard):**
+
+```
+https://your-domain.com/api/stripe/webhook
+```
+
+### Step 16: Post-build — Manual configuration checklist
+
+**After the code is built and deployed, the user MUST manually complete these items. Report this checklist prominently in the final output.**
+
+**Domain & DNS (user action required):**
+
+- [ ] Purchase domain name (Cloudflare Registrar, Namecheap, etc.)
+- [ ] Add custom domain in Cloudflare Pages dashboard
+- [ ] Configure DNS records to point to Cloudflare Pages
+- [ ] Enable SSL/TLS (Cloudflare auto-provisions certificates)
+- [ ] Update `site.url` in `src/config/site.ts` to production domain
+- [ ] Update `canonical` URLs and `metadataBase` in `layout.tsx`
+
+**Stripe setup (user action required):**
+
+- [ ] Create Stripe account at dashboard.stripe.com
+- [ ] Get API keys: `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- [ ] Create product and price in Stripe Dashboard (or via API)
+- [ ] Update `checkoutUrl` in `src/config/product.ts` if using Stripe Payment Links
+- [ ] Set up webhook endpoint in Stripe Dashboard → Developers → Webhooks
+  - URL: `https://your-domain.com/api/stripe/webhook`
+  - Events: `checkout.session.completed`, `checkout.session.expired`
+- [ ] Get `STRIPE_WEBHOOK_SECRET` from webhook signing secret
+- [ ] Set all three secrets in Cloudflare: `wrangler secret put <KEY>`
+- [ ] Test checkout flow with Stripe test mode before going live
+- [ ] Switch to live mode keys when ready
+
+**Database (user action required):**
+
+- [ ] Create D1 database: `wrangler d1 create hanfu-store-db`
+- [ ] Copy `database_id` into `wrangler.toml`
+- [ ] Run migrations: `wrangler d1 migrations apply hanfu-store-db`
+- [ ] Verify tables exist: `wrangler d1 execute hanfu-store-db --command "SELECT name FROM sqlite_master WHERE type='table'"`
+
+**Analytics (user action required):**
+
+- [ ] Create Google Analytics 4 property → get Measurement ID (G-XXXXXXX)
+- [ ] Set `NEXT_PUBLIC_GA_ID` in Cloudflare Pages environment variables
+- [ ] Create Meta Pixel in Facebook Events Manager → get Pixel ID
+- [ ] Set `NEXT_PUBLIC_META_PIXEL_ID` in environment variables
+- [ ] Verify events in GA4 DebugView and Meta Events Manager after launch
+- [ ] Set up conversion goals in GA4 and Meta Ads Manager
+
+**Email (user action required):**
+
+- [ ] Create Resend account (resend.com) or use Cloudflare Email Service
+- [ ] Get API key → set `RESEND_API_KEY` in environment variables
+- [ ] Verify sending domain (SPF, DKIM, DMARC records)
+- [ ] Test order confirmation email delivery
+- [ ] Set up newsletter capture destination (Resend Audience, Mailchimp, etc.)
+
+**Product content (user action required):**
+
+- [ ] Replace all placeholder images with real product photos
+- [ ] Create and upload OG image (1200x630px) to `/public/og-image.jpg`
+- [ ] Update product copy in `src/config/product.ts`
+- [ ] Update testimonials with real reviews (or remove if none available)
+- [ ] Update shipping and return policies with real policies
+- [ ] Set correct product price in both config and Stripe
+
+**Legal (user action required):**
+
+- [ ] Add Privacy Policy page
+- [ ] Add Terms of Service page
+- [ ] Add Cookie consent banner (if targeting EU — GDPR required)
+- [ ] Add refund/return policy page
+- [ ] Link all legal pages from footer
+
+**Pre-launch testing:**
+
+- [ ] Test full checkout flow on mobile (iPhone + Android)
+- [ ] Test checkout with Stripe test cards (4242 4242 4242 4242)
+- [ ] Verify webhook receives events (check Cloudflare Workers logs)
+- [ ] Test with Lighthouse — target score > 80
+- [ ] Verify OG image renders when sharing link on social media
+- [ ] Check all CTA links work
+- [ ] Test email delivery end-to-end
 
 ## Quality bar
 
