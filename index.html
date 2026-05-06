@@ -47,8 +47,37 @@
     footer{margin-top:50px;color:var(--muted);font-size:12px;line-height:1.8;border-top:1px solid var(--line);padding-top:18px}
     @media (max-width:900px){.cards{grid-template-columns:1fr}.formula,.score{grid-column:span 12}h1{font-size:34px}}
 
-    /* 知识库笔记样式 */
-    .notes-section{margin-top:40px;padding-top:30px;border-top:1px solid var(--line)}
+    /* 笔记按钮 */
+    .notes-btn{position:fixed;bottom:28px;right:28px;z-index:100;border:none;border-radius:999px;padding:14px 22px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:#000;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:.2s ease;display:flex;align-items:center;gap:8px}
+    .notes-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+    .notes-btn svg{width:18px;height:18px}
+
+    /* 弹层 */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);justify-content:center;align-items:flex-start;padding:60px 20px;overflow-y:auto}
+    .modal-overlay.active{display:flex}
+    .modal{width:100%;max-width:680px;background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line)}
+    .modal-header h2{margin:0;font-size:20px}
+    .modal-close{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:24px;padding:4px 8px;border-radius:8px;transition:.15s ease}
+    .modal-close:hover{color:#fff;background:rgba(255,255,255,.1)}
+    .modal-body{padding:20px 24px;max-height:70vh;overflow-y:auto}
+
+    /* 设置区域 */
+    .settings-toggle{font-size:12px;color:var(--muted);cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:transparent;transition:.15s ease}
+    .settings-toggle:hover{color:#fff;border-color:#555}
+    .settings-panel{display:none;margin-bottom:20px;padding:16px;background:#101014;border:1px solid var(--line);border-radius:14px}
+    .settings-panel.active{display:block}
+    .settings-panel label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .settings-panel input{margin-bottom:10px}
+    .settings-actions{display:flex;gap:10px;margin-top:12px}
+    .btn-sm{border:none;border-radius:999px;padding:9px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s ease}
+    .btn-primary{background:#fff;color:#000}
+    .btn-primary:hover{background:#e0e0e0}
+    .btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--line)}
+    .btn-secondary:hover{color:#fff;border-color:#555}
+    .sync-status{font-size:11px;color:var(--muted);margin-top:8px}
+
+    /* 笔记输入 */
     .note-input-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
     .note-input-wrap textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:#101014;color:#fff;padding:14px 16px;font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit;line-height:1.6}
     .note-input-wrap textarea:focus{border-color:#777}
@@ -57,12 +86,14 @@
     .note-actions input:focus{border-color:#777}
     .note-actions button{white-space:nowrap;border:none;border-radius:999px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#000;transition:.18s ease}
     .note-actions button:hover{background:#e0e0e0}
+
+    /* 笔记列表 */
     .note-filter{display:flex;gap:12px;align-items:center;margin-bottom:16px}
     .note-filter input{flex:1;border:1px solid var(--line);border-radius:999px;background:#101014;color:#fff;padding:11px 16px;font-size:13px;outline:none}
     .note-filter input:focus{border-color:#777}
     .note-count{color:var(--muted);font-size:12px;white-space:nowrap}
     .note-list{display:flex;flex-direction:column;gap:10px}
-    .note-item{background:linear-gradient(180deg,var(--card),#111114);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;position:relative}
+    .note-item{background:#101014;border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;position:relative}
     .note-item:hover{border-color:#5a5a66}
     .note-content{color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
     .note-meta{display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -94,29 +125,12 @@
     <header>
       <div class="badge">Cross-border E-commerce OP Toolkit · 分级导航</div>
       <h1>跨境电商 OP 工具包导航</h1>
-      <p class="sub">按业务链路整理：从“发现品”到“验证需求、估算成本、建站转化、投放内容、履约售后、复盘数据”。适合独立站 / TikTok Shop / 小团队起步使用。</p>
+      <p class="sub">按业务链路整理：从"发现品"到"验证需求、估算成本、建站转化、投放内容、履约售后、复盘数据"。适合独立站 / TikTok Shop / 小团队起步使用。</p>
     </header>
 
     <div class="search">
       <input id="q" placeholder="搜索工具 / 场景，例如：TikTok、运费、评论、Shopify、广告、SEO、退货..." />
     </div>
-
-    <!-- 知识库笔记 -->
-    <section id="notes" class="notes-section">
-      <div class="section-title"><h2>知识库笔记</h2><span class="hint">记录运营经验和关键知识点，数据保存在本地浏览器</span></div>
-      <div class="note-input-wrap">
-        <textarea id="noteInput" placeholder="输入笔记内容，例如：TikTok 这种海外平台要求 IP 干净，否则可能会影响推流" rows="3"></textarea>
-        <div class="note-actions">
-          <input id="noteTags" placeholder="标签（可选，用逗号分隔）" />
-          <button id="addNoteBtn">添加笔记</button>
-        </div>
-      </div>
-      <div class="note-filter">
-        <input id="noteSearch" placeholder="搜索笔记内容或标签..." />
-        <span id="noteCount" class="note-count"></span>
-      </div>
-      <div id="noteList" class="note-list"></div>
-    </section>
 
     <section id="selection">
       <div class="section-title"><h2>01 · 选品与市场验证</h2><span class="hint">先判断需求、趋势、竞争和视频表现力</span></div>
@@ -190,7 +204,7 @@
         </article>
         <article class="card" data-key="17track tracking 查询 物流轨迹">
           <div class="row"><h3>17TRACK</h3><span class="tag">轨迹查询</span></div>
-          <p>用户售后和客服常用工具，用于跟踪包裹状态、减少“没收到货”焦虑。</p>
+          <p>用户售后和客服常用工具，用于跟踪包裹状态、减少"没收到货"焦虑。</p>
           <div class="links"><a href="https://www.17track.net/" target="_blank">打开</a></div>
         </article>
       </div>
@@ -233,7 +247,7 @@
     </section>
 
     <section id="ads">
-      <div class="section-title"><h2>05 · 内容、广告与素材</h2><span class="hint">现在更像“选素材”，同品不同素材差距巨大</span></div>
+      <div class="section-title"><h2>05 · 内容、广告与素材</h2><span class="hint">现在更像"选素材"，同品不同素材差距巨大</span></div>
       <div class="cards">
         <article class="card" data-key="tiktok ads 广告 投流">
           <div class="row"><h3>TikTok Ads Manager</h3><span class="tag">短视频广告</span></div>
@@ -325,7 +339,7 @@
         </article>
         <article class="card" data-key="trademark copyright 版权 商标 侵权">
           <div class="row"><h3>USPTO / WIPO</h3><span class="tag">商标/版权</span></div>
-          <p>卖“卡皮巴拉同款”“IP 周边”“动漫玩具”前，先查商标和版权风险。</p>
+          <p>卖"卡皮巴拉同款""IP 周边""动漫玩具"前，先查商标和版权风险。</p>
           <div class="links"><a href="https://www.uspto.gov/trademarks/search" target="_blank">USPTO</a><a href="https://branddb.wipo.int/" target="_blank">WIPO</a></div>
         </article>
       </div>
@@ -381,6 +395,59 @@ ROAS = 销售额 ÷ 广告花费
     </footer>
   </main>
 
+  <!-- 笔记按钮 -->
+  <button class="notes-btn" id="openNotes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    知识库笔记
+  </button>
+
+  <!-- 笔记弹层 -->
+  <div class="modal-overlay" id="notesModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>知识库笔记</h2>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="settings-toggle" id="settingsBtn">云端同步设置</button>
+          <button class="modal-close" id="closeNotes">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settingsPanel">
+          <label>GitHub Personal Access Token（需要 gist 权限）</label>
+          <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx" />
+          <label>Gist ID（留空自动创建）</label>
+          <input id="gistIdInput" placeholder="首次同步后自动填入" />
+          <div class="settings-actions">
+            <button class="btn-sm btn-primary" id="saveSettings">保存并同步</button>
+            <button class="btn-sm btn-secondary" id="exportBtn">导出 JSON</button>
+            <button class="btn-sm btn-secondary" id="importBtn">导入 JSON</button>
+          </div>
+          <div class="sync-status" id="syncStatus"></div>
+          <input type="file" id="importFile" accept=".json" style="display:none" />
+        </div>
+
+        <!-- 笔记输入 -->
+        <div class="note-input-wrap">
+          <textarea id="noteInput" placeholder="输入笔记内容，例如：TikTok 这种海外平台要求 IP 干净，否则可能会影响推流" rows="3"></textarea>
+          <div class="note-actions">
+            <input id="noteTags" placeholder="标签（可选，用逗号分隔）" />
+            <button id="addNoteBtn">添加笔记</button>
+          </div>
+        </div>
+
+        <!-- 笔记搜索 -->
+        <div class="note-filter">
+          <input id="noteSearch" placeholder="搜索笔记内容或标签..." />
+          <span id="noteCount" class="note-count"></span>
+        </div>
+
+        <!-- 笔记列表 -->
+        <div id="noteList" class="note-list"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 搜索功能
     const q = document.getElementById('q');
@@ -393,29 +460,164 @@ ROAS = 销售额 ÷ 广告花费
       });
     });
 
-    // 知识库笔记功能
-    const STORAGE_KEY = 'sell-guide-notes';
+    // ============ 笔记弹层 ============
+    const modal = document.getElementById('notesModal');
+    document.getElementById('openNotes').addEventListener('click', () => modal.classList.add('active'));
+    document.getElementById('closeNotes').addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
 
-    function getNotes() {
+    // ============ 设置面板 ============
+    const settingsPanel = document.getElementById('settingsPanel');
+    document.getElementById('settingsBtn').addEventListener('click', () => settingsPanel.classList.toggle('active'));
+
+    // ============ 存储层 ============
+    const STORAGE_KEY = 'sell-guide-notes';
+    const CONFIG_KEY = 'sell-guide-gist-config';
+
+    function getConfig() {
+      try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch { return {}; }
+    }
+    function saveConfig(cfg) { localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
+
+    function getLocalNotes() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+    }
+    function saveLocalNotes(notes) { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }
+
+    // ============ GitHub Gist 同步 ============
+    const GIST_FILENAME = 'sell-guide-notes.json';
+    const syncStatus = document.getElementById('syncStatus');
+
+    function setStatus(msg, color) {
+      syncStatus.textContent = msg;
+      syncStatus.style.color = color || 'var(--muted)';
+    }
+
+    async function fetchGist(token, gistId) {
+      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (!res.ok) throw new Error(`获取 Gist 失败: ${res.status}`);
+      const data = await res.json();
+      const file = data.files[GIST_FILENAME];
+      return file ? JSON.parse(file.content) : [];
+    }
+
+    async function createGist(token, notes) {
+      const res = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          description: 'sell-guide notes',
+          public: false,
+          files: { [GIST_FILENAME]: { content: JSON.stringify(notes, null, 2) } }
+        })
+      });
+      if (!res.ok) throw new Error(`创建 Gist 失败: ${res.status}`);
+      return (await res.json()).id;
+    }
+
+    async function updateGist(token, gistId, notes) {
+      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: { [GIST_FILENAME]: { content: JSON.stringify(notes, null, 2) } }
+        })
+      });
+      if (!res.ok) throw new Error(`更新 Gist 失败: ${res.status}`);
+    }
+
+    async function syncNotes(direction = 'pull') {
+      const cfg = getConfig();
+      if (!cfg.token) { setStatus('未配置 Token，仅本地存储'); return; }
+
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      } catch {
-        return [];
+        setStatus('同步中...', '#ffe2a8');
+        let notes;
+
+        if (!cfg.gistId) {
+          // 首次：用本地数据创建 Gist
+          notes = getLocalNotes();
+          const gistId = await createGist(cfg.token, notes);
+          cfg.gistId = gistId;
+          saveConfig(cfg);
+          document.getElementById('gistIdInput').value = gistId;
+          setStatus('首次同步完成，Gist 已创建', '#bfffc7');
+        } else if (direction === 'pull') {
+          notes = await fetchGist(cfg.token, cfg.gistId);
+          saveLocalNotes(notes);
+          setStatus('从云端拉取完成', '#bfffc7');
+        } else {
+          notes = getLocalNotes();
+          await updateGist(cfg.token, cfg.gistId, notes);
+          setStatus('已推送到云端', '#bfffc7');
+        }
+
+        renderNotes(document.getElementById('noteSearch').value);
+      } catch (e) {
+        setStatus(`同步失败: ${e.message}`, '#ffb8b8');
       }
     }
 
-    function saveNotes(notes) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-    }
+    // ============ 设置操作 ============
+    document.getElementById('saveSettings').addEventListener('click', async () => {
+      const token = document.getElementById('tokenInput').value.trim();
+      const gistId = document.getElementById('gistIdInput').value.trim();
+      if (!token) { setStatus('请输入 Token', '#ffb8b8'); return; }
+      saveConfig({ token, gistId });
+      await syncNotes(gistId ? 'pull' : 'push');
+    });
 
+    // 导出
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(getLocalNotes(), null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'sell-guide-notes.json';
+      a.click();
+    });
+
+    // 导入
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+    document.getElementById('importFile').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const notes = JSON.parse(reader.result);
+          saveLocalNotes(notes);
+          renderNotes();
+          setStatus('导入成功，点击"保存并同步"推送到云端', '#bfffc7');
+        } catch { setStatus('文件格式错误', '#ffb8b8'); }
+      };
+      reader.readAsText(file);
+    });
+
+    // ============ 笔记 CRUD ============
     function formatDate(ts) {
       const d = new Date(ts);
       const pad = n => String(n).padStart(2, '0');
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     function renderNotes(filter = '') {
-      const notes = getNotes();
+      const notes = getLocalNotes();
       const list = document.getElementById('noteList');
       const countEl = document.getElementById('noteCount');
       const keyword = filter.trim().toLowerCase();
@@ -431,7 +633,7 @@ ROAS = 销售额 ÷ 广告花费
         return;
       }
 
-      list.innerHTML = filtered.map((note, i) => {
+      list.innerHTML = filtered.map(note => {
         const tagsHtml = (note.tags || []).map(t => `<span class="note-tag" data-tag="${t}">${t}</span>`).join('');
         return `
           <div class="note-item" data-index="${notes.indexOf(note)}">
@@ -445,37 +647,29 @@ ROAS = 销售额 ÷ 广告花费
       }).join('');
     }
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
     function addNote() {
       const input = document.getElementById('noteInput');
       const tagsInput = document.getElementById('noteTags');
       const content = input.value.trim();
       if (!content) return;
 
-      const tags = tagsInput.value
-        .split(/[,，]/)
-        .map(t => t.trim())
-        .filter(Boolean);
-
-      const notes = getNotes();
+      const tags = tagsInput.value.split(/[,，]/).map(t => t.trim()).filter(Boolean);
+      const notes = getLocalNotes();
       notes.unshift({ content, tags, createdAt: Date.now() });
-      saveNotes(notes);
+      saveLocalNotes(notes);
 
       input.value = '';
       tagsInput.value = '';
       renderNotes(document.getElementById('noteSearch').value);
+      syncNotes('push');
     }
 
     function deleteNote(index) {
-      const notes = getNotes();
+      const notes = getLocalNotes();
       notes.splice(index, 1);
-      saveNotes(notes);
+      saveLocalNotes(notes);
       renderNotes(document.getElementById('noteSearch').value);
+      syncNotes('push');
     }
 
     // 事件绑定
@@ -483,16 +677,9 @@ ROAS = 销售额 ÷ 广告花费
     document.getElementById('noteInput').addEventListener('keydown', e => {
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addNote();
     });
-
-    document.getElementById('noteSearch').addEventListener('input', e => {
-      renderNotes(e.target.value);
-    });
-
+    document.getElementById('noteSearch').addEventListener('input', e => renderNotes(e.target.value));
     document.getElementById('noteList').addEventListener('click', e => {
-      if (e.target.classList.contains('note-delete')) {
-        const index = parseInt(e.target.closest('.note-item').dataset.index);
-        deleteNote(index);
-      }
+      if (e.target.classList.contains('note-delete')) deleteNote(parseInt(e.target.closest('.note-item').dataset.index));
       if (e.target.classList.contains('note-tag')) {
         document.getElementById('noteSearch').value = e.target.dataset.tag;
         renderNotes(e.target.dataset.tag);
@@ -500,7 +687,15 @@ ROAS = 销售额 ÷ 广告花费
     });
 
     // 初始化
-    renderNotes();
+    (function init() {
+      const cfg = getConfig();
+      if (cfg.token) {
+        document.getElementById('tokenInput').value = cfg.token;
+        document.getElementById('gistIdInput').value = cfg.gistId || '';
+        syncNotes('pull');
+      }
+      renderNotes();
+    })();
   </script>
 </body>
 </html>
